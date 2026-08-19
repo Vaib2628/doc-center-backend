@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const ApiKey = require('../../models/root/ApiKey');
 const getTenantModel = require('../../utils/getTenantModel');
 const userSchema = require('../../models/tenant/userSchema');
@@ -9,6 +10,7 @@ module.exports = async function (apiData, tenant, userId) {
     const { name } = apiData;
     const { _id, dbName } = tenant;
     const rawApiKey = generateApiKey();
+    const rawSsoSecret = `sso_sec_${crypto.randomBytes(24).toString('hex')}`;
     const User = getTenantModel(dbName, 'User', userSchema);
 
     const api = await ApiKey.findOne({ tenantId: _id, name });
@@ -22,8 +24,12 @@ module.exports = async function (apiData, tenant, userId) {
         name,
         key_hash: rawApiKey,
         key_suffix: rawApiKey.slice(-4),
+        sso_secret: rawSsoSecret,
         createdBy: userId
     });
 
-    return rawApiKey;
+    return {
+        apiKey: rawApiKey,
+        ssoSecret: rawSsoSecret
+    };
 }
