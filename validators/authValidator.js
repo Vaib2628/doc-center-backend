@@ -108,11 +108,18 @@ const verifyTokenValidator = [
         .matches(/^[a-z0-9-]+$/)
         .withMessage(
             'Slug can only contain lowercase letters, numbers, and hyphens'
-        ),
+        )
+];
 
-    body('token')
+const ssoValidator = [
+    body('apiKey')
         .trim()
         .notEmpty()
-        .withMessage('Token is required')
-]
-module.exports = { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator };
+        .withMessage('apiKey is required'),
+    body('ssoToken')
+        .trim()
+        .notEmpty()
+        .withMessage('ssoToken is required')
+];
+
+module.exports = { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator, ssoValidator };
