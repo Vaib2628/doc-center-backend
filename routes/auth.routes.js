@@ -2,11 +2,23 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
-const { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator } = require('../validators/authValidator.js');
+const { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator, ssoValidator } = require('../validators/authValidator.js');
 const validate = require('../middleware/validate');
 const verifyToken = require('../middleware/verifyToken.js');
 const rateLimiter = require('../middleware/rateLimiter.js');
 const success = require('../utils/response.js');
+
+router.post('/sso',
+    asyncHandler(async function _ssoLogin(req, res, next) {
+        const apiKey = req.body.apiKey || req.headers['x-api-key'];
+        const ssoToken = req.body.ssoToken;
+        const result = await require('../controllers/auth/ssoLogin.js')({ apiKey, ssoToken });
+        
+        res.cookie('accessToken', result.accessToken);
+        res.cookie('refreshToken', result.refreshToken);
+        return success(res, result, 'SSO Authentication Successful');
+    })
+);
 
 
 router.post('/forgot-password',
