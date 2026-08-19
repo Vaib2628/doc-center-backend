@@ -3,9 +3,13 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+require('./jobs/deleteS3Documents');
+require('./jobs/deleteInvitedUser');
+require('./jobs/deleteFailedDocument');
+require('./queues/workers/emailWorker');
+console.log('Email Worker Started');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -19,9 +23,11 @@ app.set('view engine', 'ejs');
 app.use(
   cors({
     origin: /^http:\/\/([a-zA-Z0-9-]+)\.192\.168\.100\.166\.nip\.io:5173$/,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
   })
 );
+app.options('*', cors());
 
 app.use(logger('dev'));
 app.use(express.json());
